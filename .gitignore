@@ -1,0 +1,10 @@
+/MyDLL/x64/
+/MyDLL/Release/
+/MyDLL/Debug/
+/MyDLL/.vs/
+
+/Injector/x64/
+/Injector/Release/
+/Injector/Debug/
+/Injector/.vs/
+
