@@ -8,6 +8,8 @@ Set the DLL path by changing the the define `DLL_PATH` in `main.c` in the inject
 
 A simple DLL that opens a `MessageBox` is also attached to illustrate the injection.
 
+Read more at [Wikipedia](https://en.wikipedia.org/wiki/DLL_injection).
+
 #### Example
 
 ```shell
