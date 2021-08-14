@@ -4,7 +4,7 @@
 
 #define LOAD_LIBRARY_A "LoadLibraryA"
 #define KERNEL32_DLL "kernel32.dll"
-#define DLL_PATH "C:\\Projects\\C\\DLLInjector\\MyDLL\\Release\\MyDLL.dll"
+#define DLL_PATH "C://Projects/C/DLLInjector/MyDLL/MyDLL.dll"
 
 LPVOID GetLoadLibraryAAddress(){
     LPVOID lpAddress = NULL;
@@ -27,7 +27,7 @@ LPVOID GetLoadLibraryAAddress(){
 LPVOID WriteDllPathToProcess(HANDLE hProc){
     BOOL res = 0;
     LPVOID lpAddress = VirtualAllocEx(hProc, NULL, sizeof(DLL_PATH),
-                                      MEM_COMMIT, PAGE_EXECUTE_READWRITE);
+                                      MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
     if (!lpAddress){
         printf("Failed to allocate memory: VirtualAllocEx failed with error: %lu\n", GetLastError());
         return NULL;
@@ -43,7 +43,7 @@ LPVOID WriteDllPathToProcess(HANDLE hProc){
     return lpAddress;
 }
 
-int InjectDll(HANDLE hProc){
+BOOL InjectDll(HANDLE hProc){
     LPVOID lpLoadLibraryAddress = NULL;
     LPVOID lpDllPathInProc = NULL;
     HANDLE hThread = INVALID_HANDLE_VALUE;
@@ -51,36 +51,38 @@ int InjectDll(HANDLE hProc){
     lpLoadLibraryAddress = GetLoadLibraryAAddress();
     if(!lpLoadLibraryAddress){
         printf("GetLoadLibraryAAddress failed!\n");
-        return -1;
+        return FALSE;
     }
     lpDllPathInProc = WriteDllPathToProcess(hProc);
     if(!lpDllPathInProc){
         printf("WriteDllPathToProcess failed!\n");
-        return -1;
+        return FALSE;
     }
     hThread = CreateRemoteThread(hProc, NULL, 0, lpLoadLibraryAddress, lpDllPathInProc, 0, NULL);
-    VirtualFreeEx(hProc, lpDllPathInProc, 0, MEM_RELEASE);
     if(!hThread){
         printf("CreateRemoteThread failed to create thread with error: %lu\n", GetLastError());
-        return -1;
+        return FALSE;
     }
     printf("Created thread with handle %p\n", hThread);
     printf("Successfuly injected the DLL into the process!\n");
-    return 0;
+    return TRUE;
 }
 
 int main() {
     HANDLE hProc = NULL;
-    int pid = 0;
+    DWORD pid = 0;
+    BOOL res = FALSE;
 
     printf("Enter pid: ");
-    scanf("%d", &pid);
+    scanf("%lu", &pid);
     hProc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
     if(!hProc){
         printf("OpenProcess failed to open process with pid %d with error: %lu\n", pid, GetLastError());
         return -1;
     }
-    InjectDll(hProc);
+    res = InjectDll(hProc);
     CloseHandle(hProc);
+    getchar();
+    getchar();
     return 0;
 }
