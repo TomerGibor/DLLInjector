@@ -12,7 +12,7 @@ Read more at [Wikipedia](https://en.wikipedia.org/wiki/DLL_injection).
 
 #### Example
 
-```shell
+```
 $ Injector.exe
 Enter pid: 24516
 Got LoadLibraryA's address: 00007FF9522A04F0
